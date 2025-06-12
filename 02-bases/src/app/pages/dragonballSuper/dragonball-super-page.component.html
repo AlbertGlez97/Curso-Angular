@@ -1,0 +1,14 @@
+<p>Dragonball Page</p>
+<hr />
+
+<section class="row">
+  <div class="col-12 col-sm-6">
+    <app-dragonball-character-add
+    (newCharacter)="dragonballService.addCharacter($event)"
+    />
+  </div>
+
+  <div class="col-12 col-sm-6">
+    <dragonball-character-list [characters]="dragonballService.characters()" listName="Listado de Fuertes"/>
+  </div>
+</section>
