@@ -1,8 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { GifListComponent } from '../../components/gif-list/gif-list.component';
+import { GifsService } from '../../services/gifs.service';
+import { Gif } from '../../interfaces/gif.interface';
 
 @Component({
   selector: 'app-search-page',
-  imports: [],
+  imports: [GifListComponent],
   templateUrl: './search-page.component.html',
 })
-export default class SearchPageComponent {}
+export default class SearchPageComponent {
+  gifService = inject(GifsService);
+  gifs = signal<Gif[]>([]);
+
+  /**
+   * Método que se ejecuta cuando se realiza una búsqueda.
+   * Recibe la consulta de búsqueda como parámetro y la utiliza para buscar GIFs.
+   *
+   * @param query - La consulta de búsqueda introducida por el usuario.
+   */
+  onSearch(query: string) {
+    this.gifService.searchGifs(query).subscribe((resp) => {
+      this.gifs.set(resp);
+    });
+  }
+}
