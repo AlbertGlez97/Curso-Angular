@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { GifsService } from '../../services/gifs.service';
 import { Gif } from '../../interfaces/gif.interface';
 import { GifListMasonryComponent } from "../../components/gif-list-masonry/gif-list-masonry.component";
@@ -11,6 +11,8 @@ import { GifListMasonryComponent } from "../../components/gif-list-masonry/gif-l
 export default class SearchPageComponent {
   private gifService = inject(GifsService);
   gifsGroup = signal<Gif[][]>([]);
+
+  txtSearch = viewChild<ElementRef>('txtSearch');
 
   /**
    * Método que se ejecuta cuando se realiza una búsqueda.
@@ -27,5 +29,11 @@ export default class SearchPageComponent {
         this.gifsGroup.update((prev) => [...prev, gifs.slice(i, i + 3)]);
       }
     });
+  }
+
+  onScroll(atBottom: boolean) {
+    if (atBottom) {
+      this.onSearch(this.txtSearch()?.nativeElement.value);
+    }
   }
 }

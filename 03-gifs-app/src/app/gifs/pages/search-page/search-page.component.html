@@ -15,5 +15,5 @@
 </section>
 
 <section class="py-5">
-  <gif-list-masonry [gifsGroup]="gifsGroup()" />
+  <gif-list-masonry [gifsGroup]="gifsGroup()" (isAtBottom)="onScroll($event)"/>
 </section>

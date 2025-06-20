@@ -93,6 +93,8 @@ export class GifsService {
    */
   searchHistory = signal<Record<string, Gif[]>>(loadFromLocalStorage());
 
+  private searchPage = signal<number>(0);
+
   saveToLocalStorage = effect(() => {
     localStorage.setItem('searchHistory', JSON.stringify(this.searchHistory()));
   });
@@ -170,25 +172,23 @@ export class GifsService {
           api_key: environment.giphyApiKey,
           q: query,
           limit: 20,
+          offset: this.searchPage() * 20,
         },
       })
       .pipe(
-        // El operador map nos permite transformar los datos que fluyen a través del observable
-        // En este caso, extraemos solo la propiedad 'data' de la respuesta de Giphy
         map(({ data }) => data),
-
-        // Otro map para transformar los items de Giphy en nuestro modelo de Gif
-        // utilizando el mapper que hemos definido
         map((items) => GifMapper.mapGiphyItemsToGifArray(items)),
-
-        // El operador tap nos permite realizar efectos secundarios sin modificar el flujo de datos
-        // Es útil para debugging o realizar operaciones que no afectan al flujo principal
-        // En este caso, actualizamos el historial de búsqueda con los resultados
         tap((items) => {
-          this.searchHistory.update((history) => ({
-            ...history,
-            [query.toLowerCase()]: items,
-          }));
+          // Actualizamos el historial acumulando los resultados anteriores con los nuevos
+          this.searchHistory.update((history) => {
+            const key = query.toLowerCase();
+            const prev = history[key] ?? [];
+            return {
+              ...history,
+              [key]: [...prev, ...items],
+            };
+          });
+          this.searchPage.update((page) => page + 1);
         })
       );
   }

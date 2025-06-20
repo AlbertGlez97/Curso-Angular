@@ -1,3 +1,9 @@
 <section class="py-5">
-  <gif-list-masonry [gifsGroup]="gifsGroup()" class="overflow-hidden"/>
+  <gif-list-masonry
+    [gifsGroup]="gifsGroup()"
+    [scrollState]="scrollState()"
+    (isAtBottom)="onScroll($event)"
+    (scrollTop)="onScrollTop($event)"
+    class="overflow-hidden"
+  />
 </section>
