@@ -1,9 +1,10 @@
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-5">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 py-5 overflow-y-scroll h-screen"
+(scroll)="onScroll($event)" #groupDiv>
   @for (group of gifsGroup(); track $index) {
   <div class="grid gap-4">
     @for (gif of group; track gif.id) {
     <div>
-      <gif-list-item [imageUrl]="gif.url" />
+      <gif-list-item [imageUrl]="gif.url" [title]="gif.title" />
     </div>
     }
   </div>

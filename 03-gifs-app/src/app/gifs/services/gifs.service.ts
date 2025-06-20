@@ -65,11 +65,11 @@ export class GifsService {
 
   /**
    * Señal computada que agrupa los GIFs de tendencia en grupos de 3 elementos.
-   * 
+   *
    * Esta señal toma el arreglo de GIFs de tendencia y los divide en subarreglos
    * de máximo 3 elementos cada uno. Esto es útil para crear layouts de malla
    * o disposiciones en columnas donde se necesitan grupos específicos de elementos.
-   * 
+   *
    * @returns Un arreglo de arreglos de GIFs, donde cada subarreglo contiene máximo 3 GIFs
    */
   trendigGifGroup = computed<Gif[][]>(() => {
@@ -107,7 +107,9 @@ export class GifsService {
    * Señal que indica si los GIFs de tendencia se están cargando actualmente.
    * Se establece en `true` mientras se cargan y en `false` cuando termina la carga.
    */
-  trendingGifsLoading = signal<boolean>(true);
+  trendingGifsLoading = signal<boolean>(false);
+
+  private treadingPage = signal<number>(0);
 
   /**
    * Inicializa el servicio y dispara la carga de los GIFs de tendencia.
@@ -127,19 +129,23 @@ export class GifsService {
    * Muestra los GIFs cargados en la consola.
    */
   loadTrendingGifs() {
+    if (this.trendingGifsLoading()) return;
+
+    this.trendingGifsLoading.set(true);
+
     this.http
       .get<GiphyResponse>(`${environment.giphyUrl}/gifs/trending`, {
         params: {
           api_key: environment.giphyApiKey,
           limit: 20,
+          offset: this.treadingPage() * 20,
         },
       })
       .subscribe((resp) => {
         const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
-        this.trendingGifs.set(gifs);
+        this.trendingGifs.update((prev) => [...prev, ...gifs]);
         this.trendingGifsLoading.set(false);
-
-        console.log({ gifs });
+        this.treadingPage.update((page) => page + 1);
       });
   }
 
