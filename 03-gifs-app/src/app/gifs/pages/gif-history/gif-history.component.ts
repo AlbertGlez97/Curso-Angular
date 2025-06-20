@@ -1,10 +1,11 @@
 // Importaciones necesarias para el componente
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { GifsService } from '../../services/gifs.service';
-import { GifListComponent } from "../../components/gif-list/gif-list.component";
+import { Gif } from '../../interfaces/gif.interface';
+import { GifListMasonryComponent } from "../../components/gif-list-masonry/gif-list-masonry.component";
 
 /**
  * Componente que muestra el historial de GIFs para una búsqueda específica.
@@ -14,15 +15,15 @@ import { GifListComponent } from "../../components/gif-list/gif-list.component";
  */
 @Component({
   selector: 'gif-history',
-  imports: [GifListComponent],
+  imports: [GifListMasonryComponent],
   templateUrl: './gif-history.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush, // Optimización: solo detecta cambios cuando las referencias cambian
 })
 export default class GifHistoryComponent { 
 
   // Inyección del servicio de GIFs para acceder al historial de búsquedas
-  gifsService = inject(GifsService);
-
+  private gifsService = inject(GifsService);
+  
   /**
    * Señal que contiene el parámetro 'query' de la URL.
    * 
@@ -37,12 +38,22 @@ export default class GifHistoryComponent {
   )
 
   /**
-   * Señal computada que obtiene los GIFs del historial para la consulta actual.
+   * Señal computada que obtiene los GIFs del historial para la consulta actual y los agrupa.
    * 
    * Esta señal se recalcula automáticamente cuando cambia el valor de 'query'.
    * Utiliza el método getHistoryGifs del servicio para obtener los GIFs previamente
    * buscados para el término de búsqueda especificado en la URL.
+   * Los agrupa en subarreglos de máximo 3 elementos para el layout masonry.
    */
-  gifsByKey = computed(() => this.gifsService.getHistoryGifs(this.query()));
+  gifsGroup = computed(() => {
+    const gifs: Gif[] = this.gifsService.getHistoryGifs(this.query() || '');
+    const groups: Gif[][] = [];
+    
+    for (let i = 0; i < gifs.length; i += 3) {
+      groups.push(gifs.slice(i, i + 3));
+    }
+    
+    return groups;
+  });
 
 }

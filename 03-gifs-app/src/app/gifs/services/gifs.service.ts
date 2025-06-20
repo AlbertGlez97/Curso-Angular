@@ -64,6 +64,25 @@ export class GifsService {
   trendingGifs = signal<Gif[]>([]);
 
   /**
+   * Señal computada que agrupa los GIFs de tendencia en grupos de 3 elementos.
+   * 
+   * Esta señal toma el arreglo de GIFs de tendencia y los divide en subarreglos
+   * de máximo 3 elementos cada uno. Esto es útil para crear layouts de malla
+   * o disposiciones en columnas donde se necesitan grupos específicos de elementos.
+   * 
+   * @returns Un arreglo de arreglos de GIFs, donde cada subarreglo contiene máximo 3 GIFs
+   */
+  trendigGifGroup = computed<Gif[][]>(() => {
+    const groups = [];
+
+    for (let i = 0; i < this.trendingGifs().length; i += 3) {
+      groups.push(this.trendingGifs().slice(i, i + 3));
+    }
+
+    return groups;
+  });
+
+  /**
    * Historial de búsquedas almacenado como un objeto donde:
    * - La clave (key) es el término de búsqueda (string)
    * - El valor es un arreglo de GIFs encontrados para esa búsqueda (Gif[])
@@ -119,6 +138,7 @@ export class GifsService {
         const gifs = GifMapper.mapGiphyItemsToGifArray(resp.data);
         this.trendingGifs.set(gifs);
         this.trendingGifsLoading.set(false);
+
         console.log({ gifs });
       });
   }
