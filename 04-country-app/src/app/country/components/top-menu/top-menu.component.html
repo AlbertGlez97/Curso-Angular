@@ -1,0 +1,14 @@
+<nav class="p-4 w-full">
+  <ul class="menu bg-base-200 sm:menu-horizontal rounded-box">
+
+    @for (option of optionsMenu(); track option.route) {
+    <li>
+      <a class="btn" routerLink="{{option.route}}"
+         routerLinkActive="btn-primary">             
+        <span [innerHTML]="sanitizeHtml(option.icon)"></span>
+        {{option.name}}
+      </a>
+    </li>
+    }
+  </ul> 
+</nav>
